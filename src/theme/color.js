@@ -33,4 +33,8 @@ export const color = {
    * Error messages
    */
   error: palette.red,
+  /**
+   * Layout testing
+   */
+  debug: palette.debug,
 };
