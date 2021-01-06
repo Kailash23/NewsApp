@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  Image,
   ImageBackground,
   LayoutAnimation,
   Platform,
@@ -10,11 +11,21 @@ import {
 import {color} from '../theme';
 import {Screen, Text} from '../ui-kit';
 import TouchableScale from '@jonny/touchable-scale';
+import {FlatList} from 'react-native-gesture-handler';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import useAutoRefresh from '../hooks/useAutoRefresh';
+
+dayjs.extend(relativeTime);
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
+}
+
+function getTime(time) {
+  return dayjs(time).fromNow();
 }
 
 const articles = [
@@ -269,10 +280,12 @@ const articles = [
     author: null,
     title:
       'PS5 Restock Expected Later This Week In US, UK & Ireland - Screen Rant',
-    description: null,
+    description:
+      'Calls for a postseason bubble could grow louder. One Brown still doesn’t think players and staff would have been better off with a playoff bubble.',
     url:
       'https://news.google.com/__i/rss/rd/articles/CBMiO2h0dHBzOi8vc2NyZWVucmFudC5jb20vcHM1LXJlc3RvY2stdGhpcy13ZWVrLXVzLXVrLWlyZWxhbmQv0gE_aHR0cHM6Ly9zY3JlZW5yYW50LmNvbS9wczUtcmVzdG9jay10aGlzLXdlZWstdXMtdWstaXJlbGFuZC9hbXAv?oc=5',
-    urlToImage: null,
+    urlToImage:
+      'https://s.yimg.com/ny/api/res/1.2/LPUbFx2wlO37wv8xZsK38g--/YXBwaWQ9aGlnaGxhbmRlcjt3PTIwMDA7aD0xMzMz/https://s.yimg.com/os/creatr-uploaded-images/2021-01/e81332a0-4fd6-11eb-b5cf-d6e46e35169b',
     publishedAt: '2021-01-06T04:08:00Z',
     content: null,
   },
@@ -306,6 +319,14 @@ const articles = [
   },
 ];
 
+const ITEM_HEIGHT = 100;
+const HEADLINE_CHANGE_TIME = 5 * 1000;
+const LIST_REFRESH_TIME = 60 * 1000 * 5;
+
+function Divider() {
+  return <View style={styles.border} />;
+}
+
 function Title({text}) {
   return (
     <Text variant={'bold'} style={styles.head}>
@@ -314,13 +335,7 @@ function Title({text}) {
   );
 }
 
-function HeadlineCard({
-  info: {
-    urlToImage,
-    description,
-    source: {name},
-  },
-}) {
+function HeadlineCard({urlToImage, description, source: {name}}) {
   return (
     <TouchableScale
       style={styles.card}
@@ -347,7 +362,68 @@ function HeadlineCard({
     </TouchableScale>
   );
 }
+
+function NewsListView({urlToImage, publishedAt, description, source: {name}}) {
+  return (
+    <TouchableScale style={styles.list}>
+      <View style={styles.newsInfo}>
+        <View>
+          <Text style={styles.sourceName}>{name}</Text>
+          <Text variant={'bold'} style={styles.newsDesc} numberOfLines={2}>
+            {description}
+          </Text>
+        </View>
+        <Text style={styles.timeLeft}>{getTime(publishedAt)}</Text>
+      </View>
+      <View style={styles.newsThumbnail}>
+        <Image source={{uri: urlToImage}} style={styles.thumb} />
+      </View>
+    </TouchableScale>
+  );
+}
+
 const slideLength = articles.length;
+
+function NewsList() {
+  const [extraData] = useAutoRefresh(LIST_REFRESH_TIME); //5 mins (for time left)
+
+  function renderItem({item}) {
+    return <NewsListView {...item} />;
+  }
+
+  function keyExtractor(_, ind) {
+    return ind.toString();
+  }
+
+  function renderSeparator() {
+    return <Divider />;
+  }
+
+  function getItemLayout(__, index) {
+    return {
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    };
+  }
+
+  function renderListEmpty() {
+    return <Text style={styles.noData}>No data</Text>;
+  }
+
+  return (
+    <>
+      <Title text={'Todays News'} />
+      <FlatList
+        data={articles}
+        {...{renderItem, keyExtractor, getItemLayout, extraData}}
+        ItemSeparatorComponent={renderSeparator}
+        ListEmptyComponent={renderListEmpty}
+        showsVerticalScrollIndicator={false}
+      />
+    </>
+  );
+}
 
 export function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -358,7 +434,7 @@ export function Home() {
       setActiveIndex((s) => {
         return (activeIndex + 1) % slideLength;
       });
-    }, 5000);
+    }, HEADLINE_CHANGE_TIME);
 
     return () => {
       clearTimeout(interval);
@@ -368,26 +444,30 @@ export function Home() {
   return (
     <Screen style={styles.container} variant={'scroll'} withOutHeader>
       <Title text={'Headlines'} />
-      <HeadlineCard info={articles[activeIndex]} key={activeIndex.toString()} />
-      <Title text={'Todays News'} />
+      <HeadlineCard {...articles[activeIndex]} key={activeIndex.toString()} />
+      <NewsList />
     </Screen>
   );
 }
 
+const cardStyle = {
+  shadowColor: '#000',
+  shadowOffset: {width: 0, height: 2},
+  shadowOpacity: 0.5,
+  shadowRadius: 2,
+  elevation: 2,
+};
+
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
   },
   card: {
     width: '100%',
     height: 200,
     borderRadius: 10,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    elevation: 2,
+    ...cardStyle,
   },
   image: {width: '100%', height: 200},
   heading: {
@@ -412,4 +492,31 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginVertical: 20,
   },
+  list: {
+    width: '100%',
+    height: ITEM_HEIGHT,
+    padding: 10,
+    flexDirection: 'row',
+  },
+  newsInfo: {
+    flex: 0.75,
+    justifyContent: 'space-between',
+    paddingRight: 10,
+  },
+  newsThumbnail: {
+    flex: 0.25,
+    borderRadius: 10,
+    overflow: 'hidden',
+    ...cardStyle,
+  },
+  sourceName: {fontSize: 12},
+  timeLeft: {fontSize: 12, color: color.palette.warmGrey},
+  newsDesc: {fontSize: 13},
+  thumb: {width: '100%', height: '100%'},
+  border: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: color.palette.border,
+    width: '100%',
+  },
+  noData: {alignSelf: 'center'},
 });
