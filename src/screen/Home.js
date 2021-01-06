@@ -6,6 +6,7 @@ import {
   Platform,
   StyleSheet,
   UIManager,
+  TouchableHighlight,
   View,
 } from 'react-native';
 import {color} from '../theme';
@@ -15,6 +16,7 @@ import {FlatList} from 'react-native-gesture-handler';
 import useAutoRefresh from '../hooks/useAutoRefresh';
 import {formatTime, openLinkInAppBrowser} from '../utils';
 import {getTopHeadlines} from '../api';
+import {TouchWrapper} from '../components/TouchWrapper';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -40,39 +42,41 @@ function Title({text}) {
 
 function HeadlineCard({urlToImage, description, source, url}) {
   return (
-    <TouchableScale
+    <TouchWrapper
       style={styles.card}
-      onLongPress={() => {
+      callback={() => {
         if (url) {
           openLinkInAppBrowser(url);
         }
       }}>
-      <ImageBackground
-        source={{
-          uri: urlToImage,
-        }}
-        style={styles.image}>
-        <View style={styles.backdrop} />
-      </ImageBackground>
-      <View style={styles.headingContainer}>
-        <Text variant={'bold'} style={styles.heading} numberOfLines={3}>
-          {description}
-        </Text>
-      </View>
-      <View style={styles.sourceContainer}>
-        <Text variant={'medium'} style={styles.source}>
-          {source?.name}
-        </Text>
-      </View>
-    </TouchableScale>
+      <>
+        <ImageBackground
+          source={{
+            uri: urlToImage,
+          }}
+          style={styles.image}>
+          <View style={styles.backdrop} />
+        </ImageBackground>
+        <View style={styles.headingContainer}>
+          <Text variant={'bold'} style={styles.heading} numberOfLines={3}>
+            {description}
+          </Text>
+        </View>
+        <View style={styles.sourceContainer}>
+          <Text variant={'medium'} style={styles.source}>
+            {source?.name}
+          </Text>
+        </View>
+      </>
+    </TouchWrapper>
   );
 }
 
 function NewsListView({urlToImage, publishedAt, description, source, url}) {
   return (
-    <TouchableScale
+    <TouchWrapper
       style={styles.list}
-      onLongPress={() => {
+      callback={() => {
         if (url) {
           openLinkInAppBrowser(url);
         }
@@ -89,7 +93,7 @@ function NewsListView({urlToImage, publishedAt, description, source, url}) {
       <View style={styles.newsThumbnail}>
         <Image source={{uri: urlToImage}} style={styles.thumb} />
       </View>
-    </TouchableScale>
+    </TouchWrapper>
   );
 }
 
@@ -139,15 +143,13 @@ function Headlines({articles}) {
   useEffect(() => {
     const interval = setTimeout(() => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-      setActiveIndex((s) => {
-        return (s + 1) % articles?.length;
-      });
+      setActiveIndex((activeIndex + 1) % articles?.length);
     }, HEADLINE_CHANGE_TIME);
 
     return () => {
       clearTimeout(interval);
     };
-  }, [articles]);
+  }, [articles, activeIndex]);
 
   return (
     <>
@@ -192,7 +194,8 @@ const cardStyle = {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
+    paddingBottom: 20,
   },
   card: {
     width: '100%',
