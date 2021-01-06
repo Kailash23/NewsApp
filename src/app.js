@@ -5,6 +5,10 @@ import {
   initialWindowMetrics,
 } from 'react-native-safe-area-context';
 
+if (__DEV__) {
+  import('./utils/ignoreWarnings');
+}
+
 export default function App() {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
