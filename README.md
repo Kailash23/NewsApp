@@ -25,3 +25,6 @@ npm run ios
 - [ ]  Image caching
 - [ ]  Offline Handling
 - [ ]  Pagination
+
+## Try The App
+You can download the latest [APK](https://drive.google.com/file/d/1DUsGXVdrKn1kfDjF1kSUOkb7u5aY-T0x/view?usp=sharing) here.
