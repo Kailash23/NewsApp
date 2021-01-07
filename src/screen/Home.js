@@ -14,7 +14,7 @@ import useAutoRefresh from '../hooks/useAutoRefresh';
 import {getTopHeadlines} from '../api';
 import {NewsListView} from '../components';
 import {HeadlineCard} from '../components/HeadlineCard';
-
+import {useDeviceOrientation} from '@react-native-community/hooks';
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -97,6 +97,8 @@ function Headlines({articles}) {
 
 export function Home() {
   const [articles, setArticles] = useState(null);
+  const orientation = useDeviceOrientation();
+  const isPortrait = orientation.portrait;
 
   useEffect(() => {
     getTopHeadlines()
@@ -117,7 +119,10 @@ export function Home() {
   }
 
   return (
-    <Screen style={styles.container} variant={'scroll'} withOutHeader>
+    <Screen
+      style={styles.container(isPortrait)}
+      variant={'scroll'}
+      withOutHeader>
       <Headlines {...{articles}} />
       <NewsList {...{articles}} />
     </Screen>
@@ -125,10 +130,10 @@ export function Home() {
 }
 
 export const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 14,
+  container: (isPortrait) => ({
+    paddingHorizontal: isPortrait ? 14 : 50,
     paddingBottom: 20,
-  },
+  }),
   head: {
     fontSize: 20,
     alignSelf: 'flex-start',
