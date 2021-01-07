@@ -5,6 +5,9 @@
 
 ![News App](./preview.gif)
 
+## Instructions
+- Long press to read full news
+
 ## Development
 
 ```jsx
