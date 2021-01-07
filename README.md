@@ -1,4 +1,9 @@
-# NewsApp
+
+<p align="center">
+   <h1 align="center">News App - React Native</h1>  
+</p>
+
+![News App](./preview.gif)
 
 ## Development
 
