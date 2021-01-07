@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
+  Image,
   LayoutAnimation,
   Platform,
   StyleSheet,
@@ -15,6 +16,7 @@ import {getTopHeadlines} from '../api';
 import {NewsListView} from '../components';
 import {HeadlineCard} from '../components/HeadlineCard';
 import {useDeviceOrientation} from '@react-native-community/hooks';
+
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -101,19 +103,40 @@ export function Home() {
   const isPortrait = orientation.portrait;
 
   useEffect(() => {
+    let isCancelled = false;
+
     getTopHeadlines()
       .then((data) => {
-        setArticles(data?.articles);
+        if (!isCancelled) {
+          setArticles(data?.articles);
+        }
       })
       .catch((e) => {
-        console.log(e);
+        if (!isCancelled) {
+          console.log(e);
+        }
       });
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   if (articles === null) {
     return (
-      <View style={styles.loaderContainer}>
+      <View style={styles.center}>
         <ActivityIndicator color={color.palette.azure} />
+      </View>
+    );
+  }
+
+  if (articles.length === 0) {
+    return (
+      <View style={styles.center}>
+        <Image
+          source={require('../../assets/illustrations/undraw_not_found.png')}
+          style={styles.illustrations}
+        />
+        <Text>Currently no news to show</Text>
       </View>
     );
   }
@@ -140,9 +163,13 @@ export const styles = StyleSheet.create({
     marginVertical: 20,
   },
   noData: {alignSelf: 'center'},
-  loaderContainer: {
+  center: {
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+  },
+  illustrations: {
+    width: '100%',
+    height: 300,
   },
 });
