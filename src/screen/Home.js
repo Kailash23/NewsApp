@@ -1,22 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {
-  Image,
-  ImageBackground,
+  ActivityIndicator,
   LayoutAnimation,
   Platform,
   StyleSheet,
   UIManager,
-  TouchableHighlight,
   View,
 } from 'react-native';
 import {color} from '../theme';
-import {Screen, Text} from '../ui-kit';
-import TouchableScale from '@jonny/touchable-scale';
+import {Divider, Screen, Text} from '../ui-kit';
 import {FlatList} from 'react-native-gesture-handler';
 import useAutoRefresh from '../hooks/useAutoRefresh';
-import {formatTime, openLinkInAppBrowser} from '../utils';
 import {getTopHeadlines} from '../api';
-import {TouchWrapper} from '../components/TouchWrapper';
+import {NewsListView} from '../components';
+import {HeadlineCard} from '../components/HeadlineCard';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -28,72 +25,11 @@ const ITEM_HEIGHT = 100;
 const HEADLINE_CHANGE_TIME = 5 * 1000;
 const LIST_REFRESH_TIME = 60 * 1000 * 5;
 
-function Divider() {
-  return <View style={styles.border} />;
-}
-
 function Title({text}) {
   return (
     <Text variant={'bold'} style={styles.head}>
       {text}
     </Text>
-  );
-}
-
-function HeadlineCard({urlToImage, description, source, url}) {
-  return (
-    <TouchWrapper
-      style={styles.card}
-      callback={() => {
-        if (url) {
-          openLinkInAppBrowser(url);
-        }
-      }}>
-      <>
-        <ImageBackground
-          source={{
-            uri: urlToImage,
-          }}
-          style={styles.image}>
-          <View style={styles.backdrop} />
-        </ImageBackground>
-        <View style={styles.headingContainer}>
-          <Text variant={'bold'} style={styles.heading} numberOfLines={3}>
-            {description}
-          </Text>
-        </View>
-        <View style={styles.sourceContainer}>
-          <Text variant={'medium'} style={styles.source}>
-            {source?.name}
-          </Text>
-        </View>
-      </>
-    </TouchWrapper>
-  );
-}
-
-function NewsListView({urlToImage, publishedAt, description, source, url}) {
-  return (
-    <TouchWrapper
-      style={styles.list}
-      callback={() => {
-        if (url) {
-          openLinkInAppBrowser(url);
-        }
-      }}>
-      <View style={styles.newsInfo}>
-        <View>
-          <Text style={styles.sourceName}>{source?.name}</Text>
-          <Text variant={'bold'} style={styles.newsDesc} numberOfLines={2}>
-            {description}
-          </Text>
-        </View>
-        <Text style={styles.timeLeft}>{formatTime(publishedAt)}</Text>
-      </View>
-      <View style={styles.newsThumbnail}>
-        <Image source={{uri: urlToImage}} style={styles.thumb} />
-      </View>
-    </TouchWrapper>
   );
 }
 
@@ -173,7 +109,11 @@ export function Home() {
   }, []);
 
   if (articles === null) {
-    return null;
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator color={color.palette.azure} />
+      </View>
+    );
   }
 
   return (
@@ -184,74 +124,20 @@ export function Home() {
   );
 }
 
-const cardStyle = {
-  shadowColor: '#000',
-  shadowOffset: {width: 0, height: 2},
-  shadowOpacity: 0.5,
-  shadowRadius: 2,
-  elevation: 2,
-};
-
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 14,
     paddingBottom: 20,
   },
-  card: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    overflow: 'hidden',
-    ...cardStyle,
-  },
-  image: {width: '100%', height: 200},
-  heading: {
-    color: color.palette.white,
-  },
-  source: {
-    color: color.palette.white,
-  },
-  headingContainer: {
-    position: 'absolute',
-    bottom: 10,
-    paddingHorizontal: 10,
-  },
-  sourceContainer: {
-    position: 'absolute',
-    padding: 20,
-    right: 10,
-  },
-  backdrop: {backgroundColor: color.palette.backdrop, flex: 1},
   head: {
     fontSize: 20,
     alignSelf: 'flex-start',
     marginVertical: 20,
   },
-  list: {
-    width: '100%',
-    height: ITEM_HEIGHT,
-    padding: 10,
-    flexDirection: 'row',
-  },
-  newsInfo: {
-    flex: 0.75,
-    justifyContent: 'space-between',
-    paddingRight: 10,
-  },
-  newsThumbnail: {
-    flex: 0.25,
-    borderRadius: 10,
-    overflow: 'hidden',
-    ...cardStyle,
-  },
-  sourceName: {fontSize: 12},
-  timeLeft: {fontSize: 12, color: color.palette.warmGrey},
-  newsDesc: {fontSize: 13},
-  thumb: {width: '100%', height: '100%'},
-  border: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.palette.border,
-    width: '100%',
-  },
   noData: {alignSelf: 'center'},
+  loaderContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
 });
