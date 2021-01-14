@@ -23,6 +23,13 @@ if (Platform.OS === 'android') {
   }
 }
 
+//Remove articles that doesn't have desc or imageUrl
+function filterArticles(articles) {
+  return articles.filter(({urlToImage, description}) => {
+    return urlToImage && description;
+  });
+}
+
 const ITEM_HEIGHT = 100;
 const HEADLINE_CHANGE_TIME = 5 * 1000;
 const LIST_REFRESH_TIME = 60 * 1000 * 5;
@@ -42,8 +49,9 @@ function NewsList({articles}) {
     return <NewsListView {...item} />;
   }
 
-  function keyExtractor(_, ind) {
-    return ind.toString();
+  //There should be unique it for each articles in the API
+  function keyExtractor(item) {
+    return item.title;
   }
 
   function renderSeparator() {
@@ -70,6 +78,8 @@ function NewsList({articles}) {
         {...{renderItem, keyExtractor, getItemLayout, extraData}}
         ItemSeparatorComponent={renderSeparator}
         ListEmptyComponent={renderListEmpty}
+        initialNumToRender={5}
+        onEndReachedThreshold={1}
       />
     </>
   );
@@ -109,6 +119,7 @@ export function Home() {
       .then((data) => {
         if (!isCancelled) {
           setArticles(data?.articles);
+          setArticles(filterArticles(data?.articles));
         }
       })
       .catch((e) => {

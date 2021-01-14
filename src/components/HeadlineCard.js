@@ -37,21 +37,12 @@ export function HeadlineCard({urlToImage, description, source, url}) {
   );
 }
 
-const cardStyle = {
-  shadowColor: '#000',
-  shadowOffset: {width: 0, height: 2},
-  shadowOpacity: 0.5,
-  shadowRadius: 2,
-  elevation: 2,
-};
-
 export const styles = StyleSheet.create({
   card: {
     width: '100%',
     height: 200,
     borderRadius: 10,
     overflow: 'hidden',
-    ...cardStyle,
   },
   image: {width: '100%', height: 200},
   heading: {

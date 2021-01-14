@@ -38,14 +38,6 @@ export function NewsListView({
   );
 }
 
-const cardStyle = {
-  shadowColor: '#000',
-  shadowOffset: {width: 0, height: 2},
-  shadowOpacity: 0.5,
-  shadowRadius: 2,
-  elevation: 2,
-};
-
 export const styles = StyleSheet.create({
   list: {
     width: '100%',
@@ -62,7 +54,6 @@ export const styles = StyleSheet.create({
     flex: 0.25,
     borderRadius: 10,
     overflow: 'hidden',
-    ...cardStyle,
   },
   sourceName: {fontSize: 12},
   timeLeft: {fontSize: 12, color: color.palette.warmGrey},
