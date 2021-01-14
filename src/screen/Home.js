@@ -79,7 +79,7 @@ function NewsList({articles}) {
         ItemSeparatorComponent={renderSeparator}
         ListEmptyComponent={renderListEmpty}
         initialNumToRender={5}
-        onEndReachedThreshold={1}
+        onEndReachedThreshold={0.5}
       />
     </>
   );
@@ -118,7 +118,6 @@ export function Home() {
     getTopHeadlines()
       .then((data) => {
         if (!isCancelled) {
-          setArticles(data?.articles);
           setArticles(filterArticles(data?.articles));
         }
       })

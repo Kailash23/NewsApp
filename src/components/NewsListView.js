@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {memo} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import {Text} from '../ui-kit';
 import {formatTime, openLinkInAppBrowser} from '../utils';
@@ -7,36 +7,32 @@ import {color} from '../theme';
 
 const ITEM_HEIGHT = 100;
 
-export function NewsListView({
-  urlToImage,
-  publishedAt,
-  description,
-  source,
-  url,
-}) {
-  return (
-    <TouchWrapper
-      style={styles.list}
-      callback={() => {
-        if (url) {
-          openLinkInAppBrowser(url);
-        }
-      }}>
-      <View style={styles.newsInfo}>
-        <View>
-          <Text style={styles.sourceName}>{source?.name}</Text>
-          <Text variant={'bold'} style={styles.newsDesc} numberOfLines={2}>
-            {description}
-          </Text>
+export const NewsListView = memo(
+  ({urlToImage, publishedAt, description, source, url}) => {
+    return (
+      <TouchWrapper
+        style={styles.list}
+        callback={() => {
+          if (url) {
+            openLinkInAppBrowser(url);
+          }
+        }}>
+        <View style={styles.newsInfo}>
+          <View>
+            <Text style={styles.sourceName}>{source?.name}</Text>
+            <Text variant={'bold'} style={styles.newsDesc} numberOfLines={2}>
+              {description}
+            </Text>
+          </View>
+          <Text style={styles.timeLeft}>{formatTime(publishedAt)}</Text>
         </View>
-        <Text style={styles.timeLeft}>{formatTime(publishedAt)}</Text>
-      </View>
-      <View style={styles.newsThumbnail}>
-        <Image source={{uri: urlToImage}} style={styles.thumb} />
-      </View>
-    </TouchWrapper>
-  );
-}
+        <View style={styles.newsThumbnail}>
+          <Image source={{uri: urlToImage}} style={styles.thumb} />
+        </View>
+      </TouchWrapper>
+    );
+  },
+);
 
 export const styles = StyleSheet.create({
   list: {
