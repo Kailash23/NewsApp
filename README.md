@@ -5,6 +5,9 @@
 
 ![News App](./preview.gif)
 
+## Instructions
+- Long press to read full news
+
 ## Development
 
 ```jsx
@@ -25,3 +28,6 @@ npm run ios
 - [ ]  Image caching
 - [ ]  Offline Handling
 - [ ]  Pagination
+
+## Try The App
+You can download the latest [APK](https://drive.google.com/file/d/1ZVXXxvZ4Yr5lmNc8EI15KhzuzRnUtNG8/view?usp=sharing) here.
